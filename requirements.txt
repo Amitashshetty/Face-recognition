@@ -6,3 +6,4 @@ bcrypt
 numpy
 opencv-python-headless
 deepface
+werkzeug
