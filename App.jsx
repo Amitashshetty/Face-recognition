@@ -3,42 +3,7 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
 import { Shield, User, BookOpen, Camera, CheckCircle, AlertTriangle } from 'lucide-react';
 
-// Moved outside the component to provide global scope visibility to all trailing code fragments
 const API_BASE = import.meta.env.VITE_API_URL || 'https://onrender.com';
-
-export default function App() {
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [role, setRole] = useState(localStorage.getItem('role'));
-  const [view, setView] = useState('login'); 
-  
-  if (!token) {
-    return AuthPortal({ setToken, setRole, view, setView });
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 font-sans">
-      <nav className="bg-gray-900 border-b border-gray-800 px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold tracking-wider text-blue-500 flex items-center gap-2">
-          <Shield className="w-6 h-6" /> BIO-ATTENDANCE CONTROL MATRIX
-        </h1>
-        <button onClick={() => {
-          localStorage.clear();
-          setToken(null);
-          setRole(null);
-          setView('login');
-        }} className="bg-red-950 text-red-400 border border-red-800 px-4 py-1.5 rounded hover:bg-red-900 transition font-medium text-sm">
-          Disconnect Session
-        </button>
-      </nav>
-
-      <main className="p-8">
-        {role === 'student' && <StudentDashboard />}
-        {role === 'faculty' && <FacultyDashboard />}
-        {role === 'management' && <ManagementDashboard />}
-      </main>
-    </div>
-  );
-}
 function AuthPortal({ setToken, setRole, view, setView }) {
   const [isLogin, setIsLogin] = useState(true);
   const [selectedRole, setSelectedRole] = useState('student');
@@ -103,6 +68,7 @@ function AuthPortal({ setToken, setRole, view, setView }) {
       alert("Operational failure response exception: " + (err.response?.data?.detail || err.message));
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6 text-gray-200">
       <div className="w-full max-w-4xl bg-gray-900 border border-gray-800 rounded-xl shadow-2xl p-8 grid md:grid-cols-2 gap-8">
@@ -180,7 +146,40 @@ function AuthPortal({ setToken, setRole, view, setView }) {
       </div>
     </div>
   );
-} // Fixed: Added trailing closing bracket here to close the AuthPortal body scope
+}
+export default function App() {
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [role, setRole] = useState(localStorage.getItem('role'));
+  const [view, setView] = useState('login'); 
+  
+  if (!token) {
+    return <AuthPortal setToken={setToken} setRole={setRole} view={view} setView={setView} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-gray-100 font-sans">
+      <nav className="bg-gray-900 border-b border-gray-800 px-6 py-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold tracking-wider text-blue-500 flex items-center gap-2">
+          <Shield className="w-6 h-6" /> BIO-ATTENDANCE CONTROL MATRIX
+        </h1>
+        <button onClick={() => {
+          localStorage.clear();
+          setToken(null);
+          setRole(null);
+          setView('login');
+        }} className="bg-red-950 text-red-400 border border-red-800 px-4 py-1.5 rounded hover:bg-red-900 transition font-medium text-sm">
+          Disconnect Session
+        </button>
+      </nav>
+
+      <main className="p-8">
+        {role === 'student' && <StudentDashboard />}
+        {role === 'faculty' && <FacultyDashboard />}
+        {role === 'management' && <ManagementDashboard />}
+      </main>
+    </div>
+  );
+}
 function StudentDashboard() {
   const [data, setData] = useState(null);
   const uid = localStorage.getItem('user_id');
@@ -245,6 +244,7 @@ function StudentDashboard() {
     </div>
   );
 }
+
 function FacultyDashboard() {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState('');
@@ -277,7 +277,7 @@ function FacultyDashboard() {
     <div className="space-y-6">
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
         <label className="block text-xs font-mono uppercase tracking-widest text-blue-400">Select Active Academic Allocation Blocks</label>
-        <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)} className="w-full md:w-1/2 p-3 rounded bg-gray-950 border border-gray-800 text-sm text-white font-medium focus:border-blue-500 focus:outline-none">
+        <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)} className="w-full md:w-1/2 p-3 rounded bg-gray-950 border border-gray-850 text-sm text-white font-medium focus:border-blue-500 focus:outline-none">
           {classes.map(c => <option key={c.id} value={c.id}>{c.subject_name} ({c.branch} - Sem {c.semester} - {c.batch})</option>)}
         </select>
       </div>
@@ -287,7 +287,6 @@ function FacultyDashboard() {
     </div>
   );
 }
-
 function ManagementDashboard() {
   const [fullRoster, setFullRoster] = useState([]);
   const [filter, setFilter] = useState({ year: 'ALL', batch: 'ALL', semester: 'ALL', branch: 'ALL' });
@@ -299,9 +298,7 @@ function ManagementDashboard() {
   }, []);
 
   const processedRoster = fullRoster.filter(student => {
-    // Fixed: Derive academic year from semester since column context is missing from backend dataset
     const derivedYear = Math.ceil((student.current_semester || 1) / 2);
-    
     if (filter.year !== 'ALL' && derivedYear !== parseInt(filter.year)) return false;
     if (filter.batch !== 'ALL' && student.batch !== filter.batch) return false;
     if (filter.semester !== 'ALL' && student.current_semester !== parseInt(filter.semester)) return false;
@@ -387,3 +384,4 @@ function RosterTable({ roster }) {
     </div>
   );
 }
+
