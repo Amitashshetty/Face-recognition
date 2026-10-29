@@ -12,7 +12,7 @@ export default function App() {
   const [view, setView] = useState('login'); 
   
   if (!token) {
-    return <AuthPortal setToken={setToken} setRole={setRole} view={view} setView={setView} />;
+    return AuthPortal({ setToken, setRole, view, setView });
   }
 
   return (
