@@ -4,7 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Res
 import { Shield, User, BookOpen, Camera, CheckCircle, AlertTriangle } from 'lucide-react';
 
 // Moved outside the component to provide global scope visibility to all trailing code fragments
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://onrender.com';
 
 export default function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
